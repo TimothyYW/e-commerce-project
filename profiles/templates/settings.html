@@ -1,0 +1,264 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}Account Settings | GearZone{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8" x-data="{ 
+    activeTab: '{{ active_tab|default:'preferences' }}',
+    darkMode: localStorage.getItem('theme') === 'dark',
+    analyticsOptIn: localStorage.getItem('analytics_opt_in') !== 'false',
+    toggleTheme() {
+        this.darkMode = !this.darkMode;
+        if (this.darkMode) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    },
+    toggleAnalytics() {
+        this.analyticsOptIn = !this.analyticsOptIn;
+        localStorage.setItem('analytics_opt_in', this.analyticsOptIn);
+    }
+}">
+
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-6 text-sm text-slate-505 font-medium" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-2">
+            <li class="inline-flex items-center">
+                <a href="/" class="hover:text-slate-800 transition-colors flex items-center gap-1.5" id="breadcrumb-home">
+                    <i class="fa-solid fa-house text-xs"></i> Home
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-300 mx-1 md:mx-2"></i>
+                    <span class="text-slate-800 font-semibold">Settings</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="mb-8 border-b border-slate-200 pb-5">
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-gear text-[#80CAF1]"></i> System Settings
+        </h1>
+        <p class="text-slate-500 mt-1">Configure your personal preferences, security passwords, and cookie privacy controls.</p>
+    </div>
+
+    <!-- Django Message Notifications -->
+    {% if messages %}
+    <div class="mb-6 space-y-2">
+        {% for message in messages %}
+        <div class="p-4 rounded-xl border flex items-center gap-3 text-xs font-bold {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-750{% else %}bg-green-50 border-green-200 text-green-750{% endif %}" role="alert">
+            {% if message.tags == 'error' %}
+            <i class="fa-solid fa-circle-exclamation text-red-550"></i>
+            {% else %}
+            <i class="fa-solid fa-circle-check text-green-550"></i>
+            {% endif %}
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Layout Container (Sidebar tabs + Tab content) -->
+    <div class="flex flex-col md:flex-row gap-8">
+        
+        <!-- Sidebar navigation tabs -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-4 space-y-1.5">
+                <button type="button" @click="activeTab = 'preferences'" 
+                        :class="activeTab === 'preferences' ? 'bg-sky-50 text-sky-800 font-extrabold' : 'text-slate-650 hover:bg-slate-50 hover:text-slate-900 font-bold'"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm transition-all text-left cursor-pointer">
+                    <i class="fa-solid fa-sliders text-xs"></i> Preferences
+                </button>
+                
+                <button type="button" @click="activeTab = 'security'" 
+                        :class="activeTab === 'security' ? 'bg-sky-50 text-sky-800 font-extrabold' : 'text-slate-650 hover:bg-slate-50 hover:text-slate-900 font-bold'"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm transition-all text-left cursor-pointer">
+                    <i class="fa-solid fa-shield-halved text-xs"></i> Password & Security
+                </button>
+                
+                <button type="button" @click="activeTab = 'privacy'" 
+                        :class="activeTab === 'privacy' ? 'bg-sky-50 text-sky-800 font-extrabold' : 'text-slate-650 hover:bg-slate-50 hover:text-slate-900 font-bold'"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm transition-all text-left cursor-pointer">
+                    <i class="fa-solid fa-cookie-bite text-xs"></i> Cookie & Privacy
+                </button>
+            </div>
+        </aside>
+
+        <!-- Tab Content Columns -->
+        <div class="flex-grow">
+            
+            <!-- Preferences Panel -->
+            <div x-show="activeTab === 'preferences'" x-transition:enter="transition ease-out duration-200" class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+                <h2 class="text-lg font-extrabold text-slate-900 border-b border-slate-100 pb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-[#80CAF1]"></i> Display & System Preferences
+                </h2>
+                
+                <form action="{% url 'settings' %}" method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="preferences" />
+
+                    <!-- Theme Selector Option -->
+                    <div class="flex items-center justify-between py-2">
+                        <div>
+                            <span class="text-sm font-bold text-slate-800 block">Dark Mode</span>
+                            <span class="text-xs text-slate-450 block mt-0.5">Toggle site interface colors to dark styling.</span>
+                        </div>
+                        <button type="button" @click="toggleTheme()" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" :class="darkMode ? 'bg-[#80CAF1]' : 'bg-slate-200'">
+                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out" :class="darkMode ? 'translate-x-5' : 'translate-x-0'"></span>
+                        </button>
+                    </div>
+
+                    <hr class="border-slate-100">
+
+                    <!-- Notification Preferences -->
+                    <div class="space-y-4">
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest block">Notification Logs</span>
+                        
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" name="newsletter" id="newsletter" checked class="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 mt-1 cursor-pointer">
+                            <div>
+                                <label for="newsletter" class="text-sm font-bold text-slate-800 cursor-pointer">Weekly Newsletter digest</label>
+                                <span class="text-xs text-slate-450 block mt-0.5">Receive updates on new gaming gear and elite accessory release cycles.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3 mt-4">
+                            <input type="checkbox" name="stock_alerts" id="stock_alerts" checked class="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 mt-1 cursor-pointer">
+                            <div>
+                                <label for="stock_alerts" class="text-sm font-bold text-slate-800 cursor-pointer">In-Stock restock notifications</label>
+                                <span class="text-xs text-slate-450 block mt-0.5">Alert me when items on my cart or wishlist are restocked.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-100">
+
+                    <!-- Currency Preference -->
+                    <div>
+                        <label for="currency" class="block text-sm font-bold text-slate-800 mb-2">Primary Store Currency</label>
+                        <select id="currency" name="currency" class="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#80CAF1] transition-all cursor-pointer">
+                            <option value="AUD">Australian Dollar (AUD - $)</option>
+                            <option value="USD">US Dollar (USD - $)</option>
+                            <option value="EUR">Euro (EUR - €)</option>
+                        </select>
+                        <span class="text-xs text-slate-400 block mt-1.5">This currency display preference is localized and helps filter estimates.</span>
+                    </div>
+
+                    <!-- Submit settings button -->
+                    <div class="pt-4 border-t border-slate-100 flex justify-end">
+                        <button type="submit" class="inline-flex items-center justify-center px-5 py-3 bg-[#80CAF1] hover:bg-sky-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-floppy-disk text-xs"></i> Save Preferences
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Security Panel -->
+            <div x-show="activeTab === 'security'" x-transition:enter="transition ease-out duration-200" class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6" style="display: none;">
+                <h2 class="text-lg font-extrabold text-slate-900 border-b border-slate-100 pb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-[#80CAF1]"></i> Password & Authentication
+                </h2>
+                
+                <form action="{% url 'settings' %}" method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="security" />
+
+                    <!-- Django Form Errors -->
+                    {% if form.errors %}
+                    <div class="p-4 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-750 space-y-1">
+                        <p class="font-extrabold">Please correct the security errors below:</p>
+                        <ul class="list-disc pl-4 space-y-0.5">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Form Fields -->
+                    <div class="grid grid-cols-1 gap-5">
+                        {% for field in form %}
+                        <div x-data="{ showPass: false }">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-bold text-slate-800 mb-1.5">
+                                {{ field.label }}
+                            </label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-3.5 text-slate-400">
+                                    <i class="fa-solid fa-key text-xs"></i>
+                                </span>
+                                <input id="{{ field.id_for_label }}" 
+                                       name="{{ field.html_name }}" 
+                                       :type="showPass ? 'text' : 'password'" 
+                                       required
+                                       class="appearance-none rounded-xl relative block w-full pl-10 pr-10 py-3 border border-slate-200 placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#80CAF1] transition-all sm:text-xs font-bold" 
+                                       placeholder="••••••••">
+                                <button type="button" @click="showPass = !showPass" class="absolute right-3.5 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer">
+                                    <i class="fa-solid" :class="showPass ? 'fa-eye' : 'fa-eye-slash'"></i>
+                                </button>
+                            </div>
+                            {% if field.help_text %}
+                            <p class="text-[10px] text-slate-450 mt-1 leading-relaxed">{{ field.help_text|safe }}</p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Update button -->
+                    <div class="pt-4 border-t border-slate-100 flex justify-end">
+                        <button type="submit" class="inline-flex items-center justify-center px-5 py-3 bg-[#80CAF1] hover:bg-sky-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-lock text-xs"></i> Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Cookie Privacy Panel -->
+            <div x-show="activeTab === 'privacy'" x-transition:enter="transition ease-out duration-200" class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6" style="display: none;">
+                <h2 class="text-lg font-extrabold text-slate-900 border-b border-slate-100 pb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-cookie-bite text-[#80CAF1]"></i> Cookies & Tracking Compliance
+                </h2>
+                
+                <div class="space-y-6">
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        We use Google Tag Manager, Google Analytics 4, and Google Optimize to personalize layout variables, conduct A/B testing, and gather diagnostic speed logs. You can configure tracking preferences below.
+                    </p>
+
+                    <hr class="border-slate-100">
+
+                    <!-- Analytics Tracking toggler -->
+                    <div class="flex items-center justify-between py-2">
+                        <div>
+                            <span class="text-sm font-bold text-slate-800 block">Performance & Personalization Cookies</span>
+                            <span class="text-xs text-slate-450 block mt-0.5">Authorise Google Optimize & Analytics tracking cookie scripts.</span>
+                        </div>
+                        <button type="button" @click="toggleAnalytics()" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" :class="analyticsOptIn ? 'bg-[#80CAF1]' : 'bg-slate-200'">
+                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out" :class="analyticsOptIn ? 'translate-x-5' : 'translate-x-0'"></span>
+                        </button>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-start gap-3">
+                        <i class="fa-solid fa-circle-info text-[#80CAF1] mt-0.5"></i>
+                        <p class="text-[11px] text-slate-500 leading-relaxed font-semibold">
+                            Opting-out blocks Google Analytics cookies (`_ga`, `_gid`) from initialization. Personalization layout shifts on detail pages may still run, but visitor diagnostics are fully anonymized.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,360 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}Manage Customer Orders & Transactions | GearZone{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6" x-data="{ 
+    receiptModalOpen: false, 
+    receiptImgUrl: '',
+    openReceiptModal(url) {
+        this.receiptImgUrl = url;
+        this.receiptModalOpen = true;
+    }
+}">
+
+    <!-- Page Header & Breadcrumbs -->
+    <div class="mb-8">
+        <nav class="flex mb-4 text-xs font-bold text-slate-400 uppercase tracking-wider" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-2">
+                <li class="inline-flex items-center">
+                    <a href="/" class="hover:text-slate-800 transition-colors flex items-center gap-1">
+                        <i class="fa-solid fa-house text-[10px]"></i> Home
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-chevron-right text-[8px] text-slate-300 mx-1.5"></i>
+                        <a href="{% url 'admin_dashboard' %}" class="hover:text-slate-800 transition-colors">Dashboard</a>
+                    </div>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-chevron-right text-[8px] text-slate-300 mx-1.5"></i>
+                        <span class="text-slate-800">Orders & Transactions</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Customer Orders & Transactions</h1>
+        <p class="text-slate-500 mt-1">Monitor payments, check bank transfer receipts, and update shipping logs.</p>
+    </div>
+
+    <!-- Analytics Cards Section -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Orders Card -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-[#80CAF1]">
+                <i class="fa-solid fa-clipboard-list text-xl"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Total Orders</span>
+                <span class="font-black text-2xl text-slate-900">{{ total_orders_count }}</span>
+            </div>
+        </div>
+
+        <!-- Total Revenue Card -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500">
+                <i class="fa-solid fa-wallet text-xl"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Revenue (AUD)</span>
+                <span class="font-black text-2xl text-slate-900">${{ total_revenue }}</span>
+            </div>
+        </div>
+
+        <!-- Pending Actions Card -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500">
+                <i class="fa-solid fa-clock-rotate-left text-xl"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Pending Orders</span>
+                <span class="font-black text-2xl text-slate-900">{{ pending_orders_count }}</span>
+            </div>
+        </div>
+
+        <!-- Completed Orders Card -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500">
+                <i class="fa-solid fa-circle-check text-xl"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Completed</span>
+                <span class="font-black text-2xl text-slate-900">{{ completed_orders_count }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Controls -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 mb-8 flex flex-col gap-6">
+        <form method="GET" class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center" id="orders-filter-form">
+            <!-- Search field -->
+            <div class="lg:col-span-6 relative flex items-center">
+                <input type="text" name="search" placeholder="Search order ID, customer name, phone, address..." value="{{ search_query }}" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-450 text-sm font-semibold rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#80CAF1] focus:bg-white transition-all duration-300" id="search-orders" />
+                <div class="absolute left-3.5 text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </div>
+                {% if search_query %}
+                <a href="{% url 'manage_orders' %}{% if status_filter %}?status={{ status_filter }}{% endif %}" class="absolute right-3.5 text-slate-400 hover:text-slate-655">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Preserves the status filter in form query -->
+            {% if status_filter %}
+            <input type="hidden" name="status" value="{{ status_filter }}" />
+            {% endif %}
+
+            <div class="lg:col-span-3">
+                <button type="submit" class="w-full px-4 py-2.5 bg-[#80CAF1] hover:bg-sky-400 text-slate-950 font-extrabold text-sm rounded-2xl transition-all cursor-pointer">
+                    <i class="fa-solid fa-filter mr-1 text-xs"></i> Apply Filters
+                </button>
+            </div>
+            <div class="lg:col-span-3">
+                <a href="{% url 'manage_orders' %}" class="w-full inline-flex items-center justify-center px-4 py-2.5 border border-slate-200 text-slate-700 hover:bg-slate-55 bg-slate-55 font-extrabold text-sm rounded-2xl transition-all cursor-pointer">
+                    <i class="fa-solid fa-arrow-rotate-left mr-1 text-xs"></i> Reset Filters
+                </a>
+            </div>
+        </form>
+
+        <!-- Status filtering tabs -->
+        <div class="border-t border-slate-100 pt-4 flex flex-wrap gap-2">
+            <a href="{% url 'manage_orders' %}{% if search_query %}?search={{ search_query }}{% endif %}" 
+               class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer {% if not status_filter %}bg-slate-900 text-white{% else %}bg-slate-50 border border-slate-200 text-slate-650 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                All Orders
+            </a>
+            <a href="{% url 'manage_orders' %}?status=pending{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer {% if status_filter == 'pending' %}bg-amber-500 text-white{% else %}bg-slate-50 border border-slate-200 text-slate-650 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                <span class="h-1.5 w-1.5 rounded-full {% if status_filter == 'pending' %}bg-white{% else %}bg-amber-550{% endif %}"></span>
+                Pending
+            </a>
+            <a href="{% url 'manage_orders' %}?status=processing{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer {% if status_filter == 'processing' %}bg-blue-500 text-white{% else %}bg-slate-50 border border-slate-200 text-slate-650 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                <span class="h-1.5 w-1.5 rounded-full {% if status_filter == 'processing' %}bg-white{% else %}bg-blue-550{% endif %}"></span>
+                Processing
+            </a>
+            <a href="{% url 'manage_orders' %}?status=shipped{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer {% if status_filter == 'shipped' %}bg-purple-500 text-white{% else %}bg-slate-50 border border-slate-200 text-slate-650 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                <span class="h-1.5 w-1.5 rounded-full {% if status_filter == 'shipped' %}bg-white{% else %}bg-purple-500{% endif %}"></span>
+                Shipped
+            </a>
+            <a href="{% url 'manage_orders' %}?status=completed{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer {% if status_filter == 'completed' %}bg-green-600 text-white{% else %}bg-slate-50 border border-slate-200 text-slate-650 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                <span class="h-1.5 w-1.5 rounded-full {% if status_filter == 'completed' %}bg-white{% else %}bg-green-500{% endif %}"></span>
+                Completed
+            </a>
+            <a href="{% url 'manage_orders' %}?status=cancelled{% if search_query %}&search={{ search_query }}{% endif %}" 
+               class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer {% if status_filter == 'cancelled' %}bg-red-550 text-white{% else %}bg-slate-50 border border-slate-200 text-slate-650 hover:bg-slate-100 hover:text-slate-900{% endif %}">
+                <span class="h-1.5 w-1.5 rounded-full {% if status_filter == 'cancelled' %}bg-white{% else %}bg-red-500{% endif %}"></span>
+                Cancelled
+            </a>
+        </div>
+    </div>
+
+    <!-- Orders Table (Desktop) / Cards List (Mobile) -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden" id="orders-list-container">
+        {% if orders %}
+        
+        <!-- Desktop Table view -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-left text-xs font-semibold text-slate-700">
+                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4">Order ID & Date</th>
+                        <th class="px-6 py-4">Customer Details</th>
+                        <th class="px-6 py-4">Items Purchased</th>
+                        <th class="px-6 py-4 text-center">Receipt Proof</th>
+                        <th class="px-6 py-4">Grand Total</th>
+                        <th class="px-6 py-4">Order Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-150 bg-white">
+                    {% for order in orders %}
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <!-- Order ID & Date -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="font-extrabold text-slate-900 text-sm">#{{ order.id|stringformat:"05d" }}</span>
+                            <div class="text-[10px] text-slate-400 mt-0.5">{{ order.created_at|date:"M d, Y" }} at {{ order.created_at|date:"H:i" }}</div>
+                        </td>
+
+                        <!-- Customer Details -->
+                        <td class="px-6 py-4">
+                            <div class="font-extrabold text-slate-900 text-sm">{{ order.full_name }}</div>
+                            <div class="text-[10px] text-slate-450 mt-0.5">Username: <span class="font-bold text-slate-600">{{ order.user.username }}</span></div>
+                            <div class="text-[10px] text-slate-450">Phone: <span class="font-bold text-slate-600">{{ order.phone_number }}</span></div>
+                            <div class="text-[10px] text-slate-400 line-clamp-1 mt-1 font-medium" title="{{ order.address }}">{{ order.address }}</div>
+                        </td>
+
+                        <!-- Items Purchased -->
+                        <td class="px-6 py-4">
+                            <div class="space-y-1 max-w-[200px]">
+                                {% for item in order.items.all %}
+                                <div class="text-xs text-slate-800 flex justify-between gap-2 font-medium">
+                                    <span class="truncate" title="{{ item.product_name }}">{{ item.product_name }}</span>
+                                    <span class="text-slate-400 font-bold">x{{ item.quantity }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+
+                        <!-- Receipt Proof -->
+                        <td class="px-6 py-4 text-center whitespace-nowrap">
+                            {% if order.payment_proof_url %}
+                            <button type="button" @click="openReceiptModal('{{ order.payment_proof_url|escapejs }}')" class="inline-flex items-center justify-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-800 font-extrabold text-[10px] transition-colors gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-receipt text-[#80CAF1]"></i> View Proof
+                            </button>
+                            {% else %}
+                            <span class="text-slate-400 italic text-[11px]">No Receipt</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Grand Total -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="font-black text-slate-900 text-sm">${{ order.grand_total }}</div>
+                            <div class="text-[9px] text-slate-400 mt-0.5 font-bold uppercase tracking-wider">AUD</div>
+                        </td>
+
+                        <!-- Order Status Control -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form action="{% url 'update_order_status' order.id %}" method="POST" class="flex items-center">
+                                {% csrf_token %}
+                                <select name="status" onchange="this.form.submit()" class="px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#80CAF1] transition-all cursor-pointer">
+                                    <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                    <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                                    <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                                    <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completed</option>
+                                    <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Stacked Card View -->
+        <div class="block md:hidden divide-y divide-slate-150">
+            {% for order in orders %}
+            <div class="p-5 flex flex-col gap-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="font-black text-slate-900 text-base">#{{ order.id|stringformat:"05d" }}</span>
+                        <div class="text-[10px] text-slate-400 mt-0.5">{{ order.created_at|date:"M d, Y \a\t H:i" }}</div>
+                    </div>
+                    <div>
+                        <span class="font-black text-slate-900 text-base block text-right">${{ order.grand_total }}</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block text-right">AUD</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-2xl border border-slate-100 p-3.5 space-y-2">
+                    <div>
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Customer Info</span>
+                        <span class="text-xs font-bold text-slate-900">{{ order.full_name }} ({{ order.user.username }})</span>
+                        <span class="text-xs text-slate-500 block">Phone: {{ order.phone_number }}</span>
+                        <span class="text-[11px] text-slate-600 block mt-1 leading-relaxed">{{ order.address }}</span>
+                    </div>
+                    
+                    <div class="border-t border-slate-200/60 pt-2">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Purchased Products</span>
+                        <div class="space-y-1">
+                            {% for item in order.items.all %}
+                            <div class="text-[11px] font-semibold text-slate-800 flex justify-between">
+                                <span>{{ item.product_name }}</span>
+                                <span class="text-slate-450 font-bold">x{{ item.quantity }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-4 pt-1">
+                    <div>
+                        {% if order.payment_proof_url %}
+                        <button type="button" @click="openReceiptModal('{{ order.payment_proof_url|escapejs }}')" class="inline-flex items-center px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-800 font-extrabold text-[10px] gap-1 cursor-pointer">
+                            <i class="fa-solid fa-receipt text-[#80CAF1]"></i> Payment Proof
+                        </button>
+                        {% else %}
+                        <span class="text-slate-400 italic text-[10px]">No payment receipt</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <form action="{% url 'update_order_status' order.id %}" method="POST">
+                            {% csrf_token %}
+                            <select name="status" onchange="this.form.submit()" class="px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-slate-50 cursor-pointer">
+                                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                                <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                                <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completed</option>
+                                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- Empty filter state -->
+        <div class="py-16 text-center text-slate-500 bg-white rounded-3xl" id="orders-empty-state">
+            <div class="flex flex-col items-center justify-center gap-3">
+                <i class="fa-solid fa-clipboard-question text-5xl text-slate-355"></i>
+                <span class="font-extrabold text-slate-850">No customer orders matching the criteria</span>
+                <span class="text-xs text-slate-400">Try adjusting your filters or checking different status categories.</span>
+                <a href="{% url 'manage_orders' %}" class="mt-2 text-xs font-bold text-sky-650 hover:underline">Clear Search & Filters</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Payment Proof Image Modal lightbox (Alpine-powered) -->
+    <div x-show="receiptModalOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+         style="display: none;"
+         @keydown.escape.window="receiptModalOpen = false">
+         
+         <div @click.away="receiptModalOpen = false" 
+              x-transition:enter="transition ease-out duration-300"
+              x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+              x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+              x-transition:leave="transition ease-in duration-250"
+              x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+              x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+              class="bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 max-w-lg w-full relative">
+              
+              <!-- Close button -->
+              <button @click="receiptModalOpen = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer" aria-label="Close modal">
+                   <i class="fa-solid fa-xmark text-lg"></i>
+              </button>
+              
+              <h3 class="font-black text-slate-900 text-lg mb-4 flex items-center gap-2">
+                  <i class="fa-solid fa-receipt text-[#80CAF1]"></i>
+                  Proof of Transaction Receipt
+              </h3>
+              
+              <div class="rounded-2xl border border-slate-100 overflow-hidden bg-slate-50 flex items-center justify-center p-2">
+                  <img :src="receiptImgUrl" alt="Proof of Payment" class="w-full h-auto max-h-[60vh] object-contain rounded-xl" id="modal-receipt-img" />
+              </div>
+              
+              <div class="mt-4 flex justify-end">
+                  <button @click="receiptModalOpen = false" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                      Close Window
+                  </button>
+              </div>
+         </div>
+    </div>
+
+</div>
+{% endblock %}

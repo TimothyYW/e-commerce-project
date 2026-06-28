@@ -1,0 +1,259 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6">
+    
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-8 text-sm text-slate-500 font-medium" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-2">
+            <li class="inline-flex items-center">
+                <a href="/" class="hover:text-slate-800 transition-colors flex items-center gap-1.5" id="breadcrumb-home">
+                    <i class="fa-solid fa-house text-xs"></i> Home
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-300 mx-1 md:mx-2"></i>
+                    <a href="{% url 'list_products' %}" class="hover:text-slate-800 transition-colors" id="breadcrumb-products">Products</a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-300 mx-1 md:mx-2"></i>
+                    <a href="{% url 'list_products' %}?category={{ product.category.name|urlencode }}" class="hover:text-slate-800 transition-colors" id="breadcrumb-category">{{ product.category.name }}</a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-300 mx-1 md:mx-2"></i>
+                    <span class="text-slate-850 font-semibold truncate max-w-[150px] sm:max-w-none">{{ product.name }}</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Main Product Container (Buying Card Layout) -->
+    <article class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-6 md:p-10 mb-16" id="product-detail-card">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+            
+            <!-- Left Side: Product Gallery (LCP Optimized) -->
+            <div class="lg:col-span-6 flex flex-col gap-4">
+                <div class="relative aspect-square w-full rounded-2xl border border-slate-100 bg-slate-50 overflow-hidden flex items-center justify-center group shadow-inner">
+                    {% if product.image_url %}
+                    <!-- fetchpriority="high" combined with eager loading avoids Largest Contentful Paint (LCP) delays -->
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" fetchpriority="high" class="h-full w-full object-cover group-hover:scale-[1.04] transition-transform duration-500 ease-out" id="product-hero-image" />
+                    {% else %}
+                    <div class="flex flex-col items-center justify-center text-slate-300 gap-3" id="product-placeholder-image">
+                        <i class="fa-solid fa-box text-8xl"></i>
+                        <span class="text-xs font-bold text-slate-400">No Image Available</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Category Badge -->
+                    <span class="absolute top-4 left-4 inline-flex items-center px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#80CAF1] text-slate-900 shadow-sm border border-sky-300 uppercase tracking-wider">
+                        {{ product.category.name }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right Side: Buying Content -->
+            <div class="lg:col-span-6 flex flex-col justify-between" id="product-details-content">
+                <div>
+                    <!-- Top Info row -->
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest">{{ product.category.name }} Collection</span>
+                        <div>
+                            {% if product.stock == 0 %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200" id="stock-badge-out">
+                                <span class="h-2 w-2 rounded-full bg-red-600 animate-pulse"></span>
+                                Out of Stock
+                            </span>
+                            {% elif product.stock <= 5 %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200" id="stock-badge-low">
+                                <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                                Low Stock (Only {{ product.stock }} left)
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200" id="stock-badge-in">
+                                <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                                In Stock
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Main Heading -->
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4 leading-tight" id="product-title">
+                        {{ product.name }}
+                    </h1>
+
+                    <!-- Price Card -->
+                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-6 flex items-center justify-between shadow-xs">
+                        <div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Unit Price</div>
+                            <div class="font-black text-slate-900 text-3xl flex items-baseline gap-1">
+                                {{ product.price }} <span class="text-sm font-bold text-slate-500">AUD</span>
+                            </div>
+                        </div>
+                        <div class="text-right text-[10px] text-slate-450 leading-relaxed font-semibold">
+                            *Prices are in Australian Dollars<br>
+                            Includes standard GST
+                        </div>
+                    </div>
+
+                    <!-- Trust Elements Grid -->
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <div class="flex flex-col items-center justify-center p-3 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                            <i class="fa-solid fa-truck text-[#80CAF1] mb-1.5 text-sm"></i>
+                            <span class="text-[10px] font-extrabold text-slate-700">Fast Shipping</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center p-3 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                            <i class="fa-solid fa-rotate-left text-[#80CAF1] mb-1.5 text-sm"></i>
+                            <span class="text-[10px] font-extrabold text-slate-700">30-Day Returns</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center p-3 bg-slate-50 border border-slate-100 rounded-xl text-center">
+                            <i class="fa-solid fa-shield-halved text-[#80CAF1] mb-1.5 text-sm"></i>
+                            <span class="text-[10px] font-extrabold text-slate-700">1-Year Warranty</span>
+                        </div>
+                    </div>
+
+                    <!-- Product Description -->
+                    <div class="mb-8">
+                        <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Product Description</h2>
+                        <p class="text-slate-600 leading-relaxed text-sm" id="product-description">
+                            {{ product.description|default:"Elevate your gaming experience with this high-performance gear. Designed with premium components for maximum reliability and durability, ensuring top-tier accuracy for long gaming sessions or typing comfort." }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Section -->
+                <div class="border-t border-slate-100 pt-6">
+                    {% if user.is_staff or user.is_superuser or user.profile.role == 'admin' %}
+                    <!-- Admin Quick Edit Panel -->
+                    <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-700">
+                                <i class="fa-solid fa-user-shield text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-black text-slate-800">Admin Account View</div>
+                                <div class="text-[11px] text-slate-500">Edit or delete details in the Product Manager.</div>
+                            </div>
+                        </div>
+                        <a href="{% url 'manage_products' %}?edit={{ product.id }}" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-extrabold transition-all shadow-xs cursor-pointer" id="admin-edit-link">
+                            <i class="fa-solid fa-pen-to-square mr-1.5"></i> Edit Details
+                        </a>
+                    </div>
+                    {% else %}
+                    <!-- Customer Buying Form -->
+                    {% if product.stock > 0 %}
+                    <form action="{% url 'add_to_cart' product.id %}?next={{ request.get_full_path|urlencode }}" method="POST" 
+                          x-data="{ 
+                              quantity: 1, 
+                              maxStock: {{ product.stock }},
+                              increment() { if(this.quantity < this.maxStock) this.quantity++ },
+                              decrement() { if(this.quantity > 1) this.quantity-- }
+                          }" class="space-y-4">
+                        {% csrf_token %}
+                        
+                        <div class="flex flex-col sm:flex-row items-center gap-4">
+                            <!-- Quantity selector stepper -->
+                            <div class="w-full sm:w-auto flex items-center justify-between bg-slate-100 border border-slate-200 rounded-xl p-1 gap-2">
+                                <button type="button" @click="decrement" class="h-9 w-9 flex items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 transition-colors cursor-pointer" aria-label="Decrease quantity">
+                                    <i class="fa-solid fa-minus text-xs"></i>
+                                </button>
+                                <input type="number" name="quantity" x-model.number="quantity" readonly class="w-12 text-center bg-transparent border-0 font-extrabold text-sm text-slate-900 focus:ring-0 focus:outline-none" min="1" :max="maxStock" id="quantity-input" />
+                                <button type="button" @click="increment" class="h-9 w-9 flex items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 transition-colors cursor-pointer" aria-label="Increase quantity">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Add to Cart Button -->
+                            <button type="submit" class="w-full flex-1 inline-flex items-center justify-center px-6 py-3.5 border border-transparent text-sm font-extrabold rounded-xl text-slate-955 bg-[#80CAF1] hover:bg-sky-400 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 gap-2 shadow-xs cursor-pointer" id="add-to-cart-button">
+                                <i class="fa-solid fa-cart-plus text-sm"></i>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <!-- Out of stock placeholder button -->
+                    <button disabled class="w-full inline-flex items-center justify-center px-6 py-3.5 border border-slate-200 text-sm font-extrabold rounded-xl text-slate-400 bg-slate-50 cursor-not-allowed gap-2" id="sold-out-button">
+                        <i class="fa-solid fa-ban text-sm"></i>
+                        Sold Out
+                    </button>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </article>
+
+    <!-- Bottom Related Products Section -->
+    <section class="mt-16" id="related-products-section">
+        <div class="border-b border-slate-200 pb-5 mb-8 flex justify-between items-end">
+            <div>
+                <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Complete Your Setup</h2>
+                <p class="text-sm text-slate-500 mt-1">Explore other performance gear in our {{ product.category.name }} collection.</p>
+            </div>
+            <a href="{% url 'list_products' %}?category={{ product.category.name|urlencode }}" class="text-xs font-bold text-sky-650 hover:text-sky-500 hover:underline transition-all flex items-center gap-1 cursor-pointer">
+                View All <i class="fa-solid fa-arrow-right-long text-[10px]"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for related in related_products %}
+            <div class="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow duration-300">
+                <!-- Related Image -->
+                <div class="h-44 w-full bg-slate-50 border-b border-slate-100 overflow-hidden flex items-center justify-center relative">
+                    {% if related.image_url %}
+                    <!-- lazy loading used for offscreen images to maximize LCP candidate priority -->
+                    <img src="{{ related.image_url }}" alt="{{ related.name }}" loading="lazy" class="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-300" />
+                    {% else %}
+                    <i class="fa-solid fa-box text-slate-300 text-4xl"></i>
+                    {% endif %}
+                    
+                    <span class="absolute top-3 left-3 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-100">
+                        {{ related.category.name }}
+                    </span>
+                </div>
+
+                <!-- Related Content -->
+                <div class="p-4 flex-grow flex flex-col">
+                    <h3 class="font-extrabold text-slate-900 text-sm group-hover:text-slate-800 transition-colors line-clamp-1 mb-1">
+                        <a href="{% url 'product_detail' related.id related.name|slugify %}" class="hover:underline">{{ related.name }}</a>
+                    </h3>
+                    <p class="text-[11px] text-slate-450 line-clamp-2 mb-3 h-8">
+                        {{ related.description|default:"No description available." }}
+                    </p>
+                    
+                    <div class="mt-auto pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                        <div class="font-black text-slate-900 text-sm">
+                            {{ related.price }} <span class="text-[10px] font-bold text-slate-450">AUD</span>
+                        </div>
+                        
+                        <div>
+                            {% if related.stock == 0 %}
+                            <span class="text-[9px] font-bold text-red-650 bg-red-50 px-1.5 py-0.5 rounded">Sold Out</span>
+                            {% else %}
+                            <span class="text-[9px] font-bold text-green-650 bg-green-50 px-1.5 py-0.5 rounded">In Stock</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- No items found message -->
+            <div class="col-span-full py-10 text-center text-slate-500 bg-white rounded-2xl border border-slate-200">
+                <i class="fa-solid fa-boxes-packing text-3xl text-slate-300 mb-2"></i>
+                <p class="text-xs font-semibold">No other products in this category yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</div>
+{% endblock %}

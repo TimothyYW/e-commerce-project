@@ -1,0 +1,181 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}My Profile | GearZone{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Profile Page Container -->
+    <div class="space-y-8">
+        
+        <!-- Welcome Header Card -->
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-700 relative overflow-hidden flex flex-col sm:flex-row items-center gap-6">
+            <div class="absolute -top-24 -left-24 w-48 h-48 bg-sky-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl"></div>
+
+            <!-- Avatar -->
+            <div class="relative z-10 flex-shrink-0">
+                {% if profile.avatar_url %}
+                <img src="{{ profile.avatar_url }}" alt="Profile Picture" class="h-20 w-20 rounded-full object-cover border-4 border-slate-750 shadow-md" />
+                {% else %}
+                <span class="h-20 w-20 rounded-full bg-[#80CAF1] text-slate-955 flex items-center justify-center font-bold text-3xl border-4 border-slate-750 shadow-md">
+                    {{ user.username|slice:":1"|upper }}
+                </span>
+                {% endif %}
+            </div>
+
+            <!-- Header Info -->
+            <div class="relative z-10 text-center sm:text-left space-y-1">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white">
+                    {{ profile.full_name|default:user.username }}
+                </h1>
+                <p class="text-slate-400 text-sm font-semibold">@{{ user.username }}</p>
+                <div class="pt-1">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider {% if user.is_staff or profile.role == 'admin' %}bg-sky-500/10 text-sky-400 border border-sky-500/20{% else %}bg-green-500/10 text-green-400 border border-green-500/20{% endif %}">
+                        {% if user.is_staff or profile.role == 'admin' %}
+                        <i class="fa-solid fa-user-shield text-[10px]"></i> Admin Account
+                        {% else %}
+                        <i class="fa-solid fa-user text-[10px]"></i> Member Account
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert messages -->
+        {% if messages %}
+        <div class="space-y-3">
+            {% for message in messages %}
+            <div class="p-4 rounded-xl border flex items-center gap-3 text-sm font-semibold {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-700{% else %}bg-green-50 border-green-200 text-green-700{% endif %}" role="alert">
+                {% if message.tags == 'error' %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                {% else %}
+                <i class="fa-solid fa-circle-check"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Two-column grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- Side Metadata Info -->
+            <div class="md:col-span-1 space-y-6">
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
+                    <h3 class="text-base font-extrabold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-[#80CAF1]"></i> Account Details
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Username</p>
+                            <p class="text-sm font-bold text-slate-800 mt-0.5">@{{ user.username }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Default Role</p>
+                            <p class="text-sm font-bold text-slate-800 mt-0.5 capitalize">{{ profile.role }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Member Since</p>
+                            <p class="text-sm font-bold text-slate-800 mt-0.5">{{ user.date_joined|date:"F j, Y" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Phone Number</p>
+                            <p class="text-sm font-bold text-slate-800 mt-0.5">{{ profile.phone_number|default:"Not provided" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Shipping Address</p>
+                            <p class="text-sm font-bold text-slate-800 mt-0.5 leading-relaxed">{{ profile.address|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Settings Form -->
+            <div class="md:col-span-2 space-y-6">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+                    <h3 class="text-lg font-extrabold text-slate-900 border-b border-slate-100 pb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-user-gear text-[#80CAF1]"></i> Profile Settings
+                    </h3>
+
+                    <form method="POST" action="{% url 'profile' %}" enctype="multipart/form-data" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Profile Picture field -->
+                            <div>
+                                <label class="block text-sm font-bold text-slate-755 mb-1.5">Profile Picture</label>
+                                <div class="flex items-center gap-4">
+                                    {% if profile.avatar_url %}
+                                    <img src="{{ profile.avatar_url }}" alt="Current Avatar" class="h-12 w-12 rounded-full object-cover border border-slate-200" />
+                                    {% else %}
+                                    <span class="h-12 w-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center border border-slate-200">
+                                        <i class="fa-solid fa-user text-sm"></i>
+                                    </span>
+                                    {% endif %}
+                                    <input type="file" name="avatar" accept="image/*" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 transition-all cursor-pointer" />
+                                </div>
+                            </div>
+
+                            <!-- Full Name field -->
+                            <div>
+                                <label for="full_name" class="block text-sm font-bold text-slate-755 mb-1.5">Full Name</label>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-3.5 text-slate-400">
+                                        <i class="fa-solid fa-id-card text-sm"></i>
+                                    </span>
+                                    <input id="full_name" name="full_name" type="text" class="appearance-none rounded-xl relative block w-full pl-10 pr-3 py-3 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="Your full name" value="{{ profile.full_name|default:'' }}">
+                                </div>
+                            </div>
+
+                            <!-- Email field -->
+                            <div>
+                                <label for="email" class="block text-sm font-bold text-slate-755 mb-1.5">Email Address</label>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-3.5 text-slate-400">
+                                        <i class="fa-solid fa-envelope text-sm"></i>
+                                    </span>
+                                    <input id="email" name="email" type="email" required class="appearance-none rounded-xl relative block w-full pl-10 pr-3 py-3 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="Your email address" value="{{ user.email|default:'' }}">
+                                </div>
+                            </div>
+
+                            <!-- Phone Number field -->
+                            <div>
+                                <label for="phone_number" class="block text-sm font-bold text-slate-755 mb-1.5">Phone Number</label>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-3.5 text-slate-400">
+                                        <i class="fa-solid fa-phone text-sm"></i>
+                                    </span>
+                                    <input id="phone_number" name="phone_number" type="tel" class="appearance-none rounded-xl relative block w-full pl-10 pr-3 py-3 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="e.g. +61 412 345 678" value="{{ profile.phone_number|default:'' }}">
+                                </div>
+                            </div>
+
+                            <!-- Shipping Address field -->
+                            <div>
+                                <label for="address" class="block text-sm font-bold text-slate-755 mb-1.5">Shipping Address</label>
+                                <div class="relative flex items-start">
+                                    <span class="absolute left-3.5 top-3.5 text-slate-400">
+                                        <i class="fa-solid fa-map-location-dot text-sm"></i>
+                                    </span>
+                                    <textarea id="address" name="address" rows="3" class="appearance-none rounded-xl relative block w-full pl-10 pr-3 py-3 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="Enter your shipping address for orders...">{{ profile.address|default:'' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-4 border-t border-slate-100 flex justify-end">
+                            <button type="submit" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-slate-955 bg-[#80CAF1] hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-955 shadow-md shadow-sky-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

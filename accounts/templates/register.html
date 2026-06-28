@@ -1,0 +1,111 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}Sign Up | GearZone {% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[70vh] py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl shadow-xl border border-slate-200/80 relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-24 h-24 bg-sky-200/30 rounded-full blur-xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-24 h-24 bg-indigo-200/20 rounded-full blur-xl"></div>
+
+        <div class="text-center relative z-10">
+            <span class="inline-flex items-center justify-center p-3 rounded-2xl bg-slate-955 text-[#80CAF1] shadow-md mb-4 transform hover:scale-105 transition-transform duration-350">
+                <i class="fa-solid fa-user-plus text-2xl"></i>
+            </span>
+            <h2 class="text-3xl font-extrabold text-slate-955 tracking-tight">Create Account</h2>
+            <p class="mt-2 text-sm text-slate-500 font-semibold">
+                Join GearZone and start shopping
+            </p>
+        </div>
+
+        {% if error_message %}
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm flex items-center gap-2 relative z-10" role="alert">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>{{ error_message }}</span>
+        </div>
+        {% endif %}
+
+        <form class="mt-8 space-y-4 relative z-10" action="{% url 'register' %}" method="POST">
+            {% csrf_token %}
+            
+            <div>
+                <label for="full_name" class="block text-sm font-bold text-slate-755 mb-1.5">Full Name</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-3 text-slate-400">
+                        <i class="fa-solid fa-id-card text-sm"></i>
+                    </span>
+                    <input id="full_name" name="full_name" type="text" class="appearance-none rounded-xl relative block w-full pl-10 pr-3 py-3 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="Enter your full name" value="{{ full_name|default:'' }}">
+                </div>
+            </div>
+
+            <div>
+                <label for="username" class="block text-sm font-bold text-slate-755 mb-1.5">Username</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-3 text-slate-400">
+                        <i class="fa-solid fa-user text-sm"></i>
+                    </span>
+                    <input id="username" name="username" type="text" required class="appearance-none rounded-xl relative block w-full pl-10 pr-3 py-3 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="Choose a username" value="{{ username|default:'' }}">
+                </div>
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-bold text-slate-755 mb-1.5">Email Address</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-3 text-slate-400">
+                        <i class="fa-solid fa-envelope text-sm"></i>
+                    </span>
+                    <input id="email" name="email" type="email" required class="appearance-none rounded-xl relative block w-full pl-10 pr-3 py-3 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="Enter your email" value="{{ email|default:'' }}">
+                </div>
+            </div>
+
+            <div x-data="{ showPassword: false }">
+                <label for="password" class="block text-sm font-bold text-slate-755 mb-1.5">Password</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-3 text-slate-400">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                    </span>
+                    <input id="password" name="password" :type="showPassword ? 'text' : 'password'" required class="appearance-none rounded-xl relative block w-full pl-10 pr-10 py-3 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="Create a password">
+                    <button type="button" @click="showPassword = !showPassword" class="absolute right-3 text-slate-400 hover:text-slate-600 focus:outline-none">
+                        <i class="fa-solid" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div x-data="{ showConfirmPassword: false }">
+                <label for="confirm_password" class="block text-sm font-bold text-slate-755 mb-1.5">Confirm Password</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-3 text-slate-400">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                    </span>
+                    <input id="confirm_password" name="confirm_password" :type="showConfirmPassword ? 'text' : 'password'" required class="appearance-none rounded-xl relative block w-full pl-10 pr-10 py-3 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="Confirm your password">
+                    <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="absolute right-3 text-slate-400 hover:text-slate-600 focus:outline-none">
+                        <i class="fa-solid" :class="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" class="group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-bold rounded-xl text-slate-955 bg-[#80CAF1] hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-955 shadow-md shadow-sky-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3 text-slate-900/60 group-hover:text-slate-955">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </span>
+                    Sign Up
+                </button>
+            </div>
+        </form>
+
+        <div class="relative my-6 z-10 flex items-center justify-center">
+            <hr class="w-full border-slate-200">
+            <span class="absolute px-3 bg-white text-xs font-bold text-slate-400 uppercase tracking-wider">or</span>
+        </div>
+
+        <div class="text-center relative z-10">
+            <p class="text-sm text-slate-600 font-semibold">
+                Already have an account? 
+                <a href="{% url 'login' %}" class="font-bold text-sky-600 hover:text-sky-500 transition-colors">Sign in now</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

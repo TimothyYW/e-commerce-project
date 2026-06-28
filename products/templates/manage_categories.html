@@ -1,0 +1,267 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}Manage Categories | GearZone Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6" x-data="{ 
+    addModalOpen: false, 
+    editModalOpen: false, 
+    deleteModalOpen: false,
+    selectedCategory: { id: '', name: '', slug: '' }
+}">
+    
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                <i class="fa-solid fa-tags text-[#80CAF1]"></i>
+                Manage Categories
+            </h1>
+            <p class="text-slate-500 mt-1">Add, update, and manage your product categories.</p>
+        </div>
+        <button @click="addModalOpen = true" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-sm font-bold rounded-xl text-slate-955 bg-[#80CAF1] hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-955 shadow-md shadow-sky-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 gap-2 cursor-pointer">
+            <i class="fa-solid fa-plus"></i>
+            Add New Category
+        </button>
+    </div>
+
+    <!-- Alert messages -->
+    {% if messages %}
+    <div class="mb-8 space-y-3">
+        {% for message in messages %}
+        <div class="p-4 rounded-xl border flex items-center gap-3 text-sm font-semibold {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-700{% else %}bg-green-50 border-green-200 text-green-700{% endif %}" role="alert">
+            {% if message.tags == 'error' %}
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            {% else %}
+            <i class="fa-solid fa-circle-check"></i>
+            {% endif %}
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Categories Table Card -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        <th class="px-6 py-4">ID</th>
+                        <th class="px-6 py-4">Category Name</th>
+                        <th class="px-6 py-4">Slug</th>
+                        <th class="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                    {% for category in categories %}
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <!-- ID -->
+                        <td class="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-500">
+                            #{{ category.id }}
+                        </td>
+                        
+                        <!-- Name -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="font-bold text-slate-900">{{ category.name }}</div>
+                        </td>
+                        
+                        <!-- Slug -->
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-600">
+                            {{ category.slug }}
+                        </td>
+                        
+                        <!-- Actions -->
+                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button @click="
+                                    selectedCategory = { 
+                                        id: '{{ category.id }}', 
+                                        name: '{{ category.name|escapejs }}', 
+                                        slug: '{{ category.slug|escapejs }}'
+                                    }; 
+                                    editModalOpen = true;" 
+                                    class="p-2 rounded-lg text-slate-550 hover:bg-slate-100 hover:text-slate-900 transition-colors" title="Edit">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button @click="
+                                    selectedCategory = { 
+                                        id: '{{ category.id }}', 
+                                        name: '{{ category.name|escapejs }}' 
+                                    }; 
+                                    deleteModalOpen = true;" 
+                                    class="p-2 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors" title="Delete">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-slate-500">
+                            <div class="flex flex-col items-center justify-center gap-3">
+                                <i class="fa-solid fa-tags text-4xl text-slate-300"></i>
+                                <span class="font-semibold">No categories found</span>
+                                <button @click="addModalOpen = true" class="text-xs text-sky-600 font-bold hover:text-sky-500 transition-colors underline cursor-pointer">
+                                    Create one now
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ADD CATEGORY MODAL -->
+    <div x-show="addModalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" x-transition>
+        <!-- Modal Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" @click="addModalOpen = false"></div>
+        
+        <!-- Modal Content Container -->
+        <div class="flex min-h-full items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10">
+            <div class="w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 flex flex-col space-y-6 relative overflow-hidden">
+                
+                <!-- Close Button -->
+                <button @click="addModalOpen = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+                
+                <!-- Modal Title -->
+                <div>
+                    <h3 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-tag text-[#80CAF1]"></i>
+                        Add New Category
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Fill in the fields to create a product category.</p>
+                </div>
+
+                <!-- Form -->
+                <form method="POST" action="{% url 'manage_categories' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create">
+
+                    <div>
+                        <label for="add_name" class="block text-xs font-bold text-slate-755 mb-1">Category Name</label>
+                        <input id="add_name" name="name" type="text" required class="appearance-none rounded-xl relative block w-full px-3 py-2.5 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="e.g. Gaming Mouse">
+                    </div>
+
+                    <div>
+                        <label for="add_slug" class="block text-xs font-bold text-slate-755 mb-1">Custom Slug (Optional)</label>
+                        <input id="add_slug" name="slug" type="text" class="appearance-none rounded-xl relative block w-full px-3 py-2.5 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="e.g. gaming-mouse">
+                        <p class="text-[10px] text-slate-400 mt-1">Leaves empty to auto-generate slug from name.</p>
+                    </div>
+
+                    <div class="pt-4 flex justify-end gap-3 border-t border-slate-100">
+                        <button type="button" @click="addModalOpen = false" class="px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-650 hover:bg-slate-50 cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 text-xs font-bold rounded-lg text-slate-955 bg-[#80CAF1] hover:bg-sky-400 cursor-pointer">
+                            Create Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT CATEGORY MODAL -->
+    <div x-show="editModalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" x-transition>
+        <!-- Modal Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" @click="editModalOpen = false"></div>
+        
+        <!-- Modal Content Container -->
+        <div class="flex min-h-full items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10">
+            <div class="w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 flex flex-col space-y-6 relative overflow-hidden">
+                
+                <!-- Close Button -->
+                <button @click="editModalOpen = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+                
+                <!-- Modal Title -->
+                <div>
+                    <h3 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-[#80CAF1]"></i>
+                        Edit Category
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Modify the details of the product category.</p>
+                </div>
+
+                <!-- Form -->
+                <form method="POST" action="{% url 'manage_categories' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="category_id" :value="selectedCategory.id">
+
+                    <div>
+                        <label for="edit_name" class="block text-xs font-bold text-slate-755 mb-1">Category Name</label>
+                        <input id="edit_name" name="name" type="text" required :value="selectedCategory.name" class="appearance-none rounded-xl relative block w-full px-3 py-2.5 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="Category Name">
+                    </div>
+
+                    <div>
+                        <label for="edit_slug" class="block text-xs font-bold text-slate-755 mb-1">Slug</label>
+                        <input id="edit_slug" name="slug" type="text" :value="selectedCategory.slug" class="appearance-none rounded-xl relative block w-full px-3 py-2.5 border border-slate-300 placeholder-slate-400 text-slate-955 focus:outline-none focus:ring-2 focus:ring-slate-955 focus:border-transparent transition-all sm:text-sm" placeholder="Slug">
+                        <p class="text-[10px] text-slate-400 mt-1">Leaves empty to auto-generate slug from name.</p>
+                    </div>
+
+                    <div class="pt-4 flex justify-end gap-3 border-t border-slate-100">
+                        <button type="button" @click="editModalOpen = false" class="px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-650 hover:bg-slate-50 cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 text-xs font-bold rounded-lg text-slate-955 bg-[#80CAF1] hover:bg-sky-400 cursor-pointer">
+                            Update Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div x-show="deleteModalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" x-transition>
+        <!-- Modal Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" @click="deleteModalOpen = false"></div>
+        
+        <!-- Modal Content Container -->
+        <div class="flex min-h-full items-center justify-center p-4 relative z-10">
+            <div class="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-slate-100 flex flex-col space-y-4 text-center">
+                
+                <!-- Danger Icon -->
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-650 border border-red-100">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-extrabold text-slate-900">Delete Category</h3>
+                    <div class="text-xs text-slate-500 mt-2 space-y-2">
+                        <p>Are you sure you want to delete <strong x-text="selectedCategory.name"></strong>?</p>
+                        <p class="bg-red-50 text-red-700 p-2.5 rounded-xl border border-red-200 font-semibold text-[11px] leading-relaxed">
+                            <i class="fa-solid fa-circle-exclamation mr-1 animate-pulse"></i>
+                            <strong>Warning:</strong> This action cannot be undone. All products belonging to this category will be deleted permanently.
+                        </p>
+                    </div>
+                </div>
+
+                <form method="POST" action="{% url 'manage_categories' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="category_id" :value="selectedCategory.id">
+
+                    <div class="flex justify-center gap-3 mt-4">
+                        <button type="button" @click="deleteModalOpen = false" class="px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-650 hover:bg-slate-50 cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 text-xs font-bold rounded-lg text-white bg-red-600 hover:bg-red-750 cursor-pointer">
+                            Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

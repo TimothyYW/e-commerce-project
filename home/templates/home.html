@@ -1,0 +1,254 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}GearZone | Premium Gaming Gear & Accessories{% endblock %}
+
+{% block content %}
+<div class="space-y-16">
+    <!-- HERO SECTION -->
+    <section class="relative bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-800">
+        <!-- Abstract gradient overlays -->
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent z-10"></div>
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-sky-500/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl"></div>
+
+        <div class="relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-h-[500px] z-20">
+            <!-- Left content text -->
+            <div class="lg:col-span-6 px-8 py-12 lg:py-20 lg:pl-16 flex flex-col justify-center space-y-6">
+                {% if user.is_authenticated %}
+                {% if user.is_staff or user.profile.role == 'admin' %}
+                <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-400/10 text-sky-400 border border-sky-400/20 self-start">
+                    <i class="fa-solid fa-user-shield"></i> Admin Control Center Active
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
+                    Welcome Back, <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">{{
+                        user.profile.full_name|default:user.username }}</span>
+                </h1>
+                <p class="text-slate-300 text-lg max-w-lg leading-relaxed font-light">
+                    Manage inventory, review customer sales reports, and configure system operations directly from the
+                    administration dashboard.
+                </p>
+                <div class="pt-4 flex flex-wrap gap-4">
+                    <a href="{% url 'admin_dashboard' %}"
+                        class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#80CAF1] hover:bg-sky-400 text-slate-955 font-extrabold text-base shadow-lg shadow-sky-500/20 hover:scale-105 active:scale-95 transition-all duration-300 group">
+                        Go to Dashboard
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                    <a href="/product/"
+                        class="inline-flex items-center gap-2 px-8 py-4 rounded-xl border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 font-extrabold text-base hover:scale-105 active:scale-95 transition-all duration-300">
+                        View product
+                    </a>
+                </div>
+                {% else %}
+                <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-400/10 text-green-400 border border-green-400/20 self-start">
+                    <i class="fa-solid fa-heart"></i> Welcome Back, {{ user.profile.full_name|default:user.username }}!
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
+                    Gear Up for <br>
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">Victory!</span>
+                </h1>
+                <p class="text-slate-300 text-lg max-w-lg leading-relaxed font-light">
+                    Explore new elite additions to our store. Unleash your full potential with custom-designed premium
+                    gaming setups.
+                </p>
+                <div class="pt-4">
+                    <a href="/product/"
+                        class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#80CAF1] hover:bg-sky-400 text-slate-955 font-extrabold text-base shadow-lg shadow-sky-500/20 hover:scale-105 active:scale-95 transition-all duration-300 group">
+                        Start Shopping
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
+                {% endif %}
+                {% else %}
+                <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-400/10 text-sky-400 border border-sky-400/20 self-start">
+                    <i class="fa-solid fa-bolt"></i> Elevate Your Gaming Experience
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
+                    Level-Up Your <br>
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">Setup!</span>
+                </h1>
+                <p class="text-slate-300 text-lg max-w-lg leading-relaxed font-light">
+                    Unleash your full potential with our premium gaming gear. Ergonomic mice, clicky mechanical
+                    keyboards, and studio-grade headsets designed for champions.
+                </p>
+                <div class="pt-4">
+                    <a href="/product/"
+                        class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#80CAF1] hover:bg-sky-400 text-slate-955 font-extrabold text-base shadow-lg shadow-sky-500/20 hover:scale-105 active:scale-95 transition-all duration-300 group">
+                        Shop Now
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right side hero image -->
+            <div class="lg:col-span-6 h-full min-h-[350px] lg:min-h-[500px] relative">
+                <img src="{% static 'images/gaming_hero.png' %}" alt="Gaming setup hero image"
+                    class="absolute inset-0 w-full h-full object-cover object-center" />
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURE CATEGORIES -->
+    <section class="bg-[#80CAF1] rounded-3xl p-8 sm:p-12 shadow-xl border border-sky-300 relative overflow-hidden">
+        <!-- Micro background blobs -->
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-sky-200/20 rounded-full blur-2xl"></div>
+
+        <div
+            class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 border-b border-sky-400/30 pb-6">
+            <div>
+                <h2 class="text-3xl font-extrabold text-slate-950">Feature Categories</h2>
+                <p class="text-slate-800 font-semibold mt-1">Explore our custom gear categories</p>
+            </div>
+        </div>
+
+        <div class="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {% for category in categories %}
+            <a href="{% url 'list_products' %}?category={{ category.name }}"
+                class="group flex flex-col items-center justify-center p-6 rounded-2xl bg-white/90 backdrop-blur-md shadow-md border border-white hover:bg-white hover:scale-105 hover:shadow-lg transition-all duration-300">
+                <span
+                    class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-sky-100 text-[#80CAF1] group-hover:bg-[#80CAF1] group-hover:text-white transition-all duration-300 text-3xl mb-4 animate-all">
+                    {% if category.name|lower == 'mouse' %}
+                    <i class="fa-solid fa-mouse"></i>
+                    {% elif category.name|lower == 'keyboard' %}
+                    <i class="fa-solid fa-keyboard"></i>
+                    {% elif category.name|lower == 'headset' %}
+                    <i class="fa-solid fa-headphones"></i>
+                    {% elif category.name|lower == 'monitor' %}
+                    <i class="fa-solid fa-desktop"></i>
+                    {% else %}
+                    <i class="fa-solid fa-tag"></i>
+                    {% endif %}
+                </span>
+                <span class="font-extrabold text-lg text-slate-955">{{ category.name }}</span>
+            </a>
+            {% empty %}
+            <div class="col-span-full py-8 text-center bg-white/50 rounded-2xl border border-white/40">
+                <div class="flex flex-col items-center justify-center gap-2 text-slate-800">
+                    <i class="fa-solid fa-tags text-2xl text-sky-800/60"></i>
+                    <span class="font-bold text-sm">No categories found in the database</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- FEATURE product -->
+    <section class="space-y-8">
+        <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-6">
+            <div>
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Feature product</h2>
+                <p class="text-slate-500 mt-1">High-performance gear built for gaming</p>
+            </div>
+            <a href="/product/"
+                class="inline-flex items-center gap-1.5 text-sm font-bold text-[#80CAF1] hover:text-sky-500 transition-colors">
+                View All product <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in products %}
+            <div
+                class="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md hover:border-slate-300 transition-all duration-300 flex flex-col">
+                <a href="{% url 'product_detail' product.id product.name|slugify %}"
+                    class="aspect-square bg-slate-50 flex items-center justify-center p-8 relative overflow-hidden block">
+                    <span
+                        class="absolute inset-0 bg-slate-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+
+                    {% if product.image_url %}
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    {% else %}
+                    <span
+                        class="text-slate-400 group-hover:text-[#80CAF1] transition-colors duration-300 group-hover:scale-110 transform duration-300 text-6xl relative z-10">
+                        {% if product.category.name|lower == 'mouse' %}
+                        <i class="fa-solid fa-mouse"></i>
+                        {% elif product.category.name|lower == 'keyboard' %}
+                        <i class="fa-solid fa-keyboard"></i>
+                        {% elif product.category.name|lower == 'headset' %}
+                        <i class="fa-solid fa-headphones"></i>
+                        {% elif product.category.name|lower == 'monitor' %}
+                        <i class="fa-solid fa-desktop"></i>
+                        {% else %}
+                        <i class="fa-solid fa-box"></i>
+                        {% endif %}
+                    </span>
+                    {% endif %}
+
+                    <!-- Stock status badge -->
+                    {% if product.stock == 0 %}
+                    <span
+                        class="absolute top-3 left-3 bg-red-500 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm z-10">Out
+                        of Stock</span>
+                    {% elif product.stock <= 5 %} <span
+                        class="absolute top-3 left-3 bg-amber-500 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm z-10">
+                        Low Stock</span>
+                        {% else %}
+                        <span
+                            class="absolute top-3 left-3 bg-green-500 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm z-10">In
+                            Stock</span>
+                        {% endif %}
+                </a>
+
+                <div class="p-5 flex-grow flex flex-col justify-between">
+                    <div class="space-y-1.5">
+                        <h3
+                            class="font-bold text-lg text-slate-800 group-hover:text-slate-900 transition-colors line-clamp-1">
+                            <a href="{% url 'product_detail' product.id product.name|slugify %}"
+                                class="hover:underline">{{ product.name }}</a>
+                        </h3>
+                        <p class="text-sm text-slate-500 leading-relaxed line-clamp-2">
+                           {{ product.description|default:"Elevate your gaming experience with this high-performance gear. Designed with premium components for maximum reliability and durability, ensuring top-tier accuracy for long gaming sessions or typing comfort." }}</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-5 pt-3 border-t border-slate-100">
+                        <span class="text-xl font-extrabold text-slate-900">{{ product.price }} <span
+                                class="text-xs font-bold text-slate-500">AUD</span></span>
+
+                        {% if user.is_staff or user.is_superuser or user.profile.role == 'admin' %}
+                        <!-- Admin edit shortcut -->
+                        <a href="{% url 'manage_products' %}?edit={{ product.id }}"
+                            class="inline-flex items-center justify-center p-2.5 rounded-xl bg-slate-950 text-white hover:bg-[#80CAF1] hover:text-slate-955 transition-all duration-300 shadow-sm hover:scale-105 active:scale-95 cursor-pointer">
+                            <i class="fa-solid fa-pen-to-square text-sm"></i>
+                        </a>
+                        {% else %}
+                        <!-- User add to cart button -->
+                        {% if product.stock > 0 %}
+                        <form action="{% url 'add_to_cart' product.id %}?next={{ request.get_full_path|urlencode }}"
+                            method="POST" class="inline">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="inline-flex items-center justify-center p-2.5 rounded-xl bg-slate-955 text-[#80CAF1] hover:bg-[#80CAF1] hover:text-white transition-all duration-300 shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
+                                title="Add to Cart">
+                                 <i class="fa-solid fa-cart-plus text-xs"></i>
+                            </button>
+                        </form>
+                        {% else %}
+                        <button disabled
+                            class="inline-flex items-center justify-center p-2.5 rounded-xl bg-slate-200 text-slate-400 cursor-not-allowed shadow-sm transition-all duration-300">
+                            <i class="fa-solid fa-ban text-xs"></i>
+                        </button>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full py-16 text-center text-slate-500 bg-white rounded-3xl border border-slate-200">
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <i class="fa-solid fa-boxes-packing text-5xl text-slate-300"></i>
+                    <span class="font-semibold text-base">No products are currently available</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
