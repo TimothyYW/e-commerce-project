@@ -1,0 +1,24 @@
+# Exclude local virtual environments
+venv/
+.venv/
+env/
+
+# Exclude python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude local databases and config files
+db.sqlite3
+.env
+
+# Exclude static/media files built locally
+staticfiles/
+media/
+
+# Exclude system files and project archives
+.DS_Store
+.git/
+.github/
+ecommerce-complete.zip
