@@ -2,7 +2,27 @@
 
 A Django-based E-Commerce system with PostgreSQL database integration and Supabase Storage for file storage (transfer proof & product photos).
 
----
+Here is the result of the mock-up test.
+
+![Mock-test](screenshots/mock-up test.png)
+
+Here is the functional link.
+
+[GearZone](https://gearzone.onrender.com)
+
+# Feature
+
+Using figma to create the wireframe for the formation of the design for the website.
+
+![Home Page Design](screenshots/home-page.png)
+
+![Product Page Design](screenshots/product-page.png)
+
+![Cart Page Design](screenshots/cart-page.png)
+
+![Login Page Design](screenshots/login-page.png)
+
+## Existing Features
 
 ## 🚀 Guide to Running the Project Locally
 
@@ -97,8 +117,6 @@ In the **Environment** tab of your Render service, add the following variables:
 * `SUPABASE_URL`: Your Supabase API link.
 * `SUPABASE_KEY`: Your Supabase API/anon key.
 * `PYTHON_VERSION`: `3.10.x` or the version matching your local environment.
-
----
 
 ## 🐳 Guide to Deploying with Docker on Render.com
 
