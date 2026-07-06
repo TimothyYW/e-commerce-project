@@ -56,6 +56,38 @@ Product page shows all the product that is being sell in the website.
 
  ![Account Creation](screenshots/account-creation.png)
 
+ Lastly, footer contain the website rights.
+
+ ![Footer](screenshots/footer.png)
+
+ ## Future Features
+
+ - Adding extra catagories for new type of product.
+
+# Testing
+
+## Lighthouse devtool
+
+The Lighthouse devtool measures the website's level of performance, accessibility, best practices, and SEO. The scores can be seen below:
+
+![Lighthouse Devtool](screenshots/lighthouse-devtool.png)
+
+# Technologies Utilized 
+
+HTML is used to write the code and build the website.
+
+CSS is used to style the code.
+
+Python is for the backend.
+
+Django Framework is for the based for the website structure.
+
+Supabase is to store the user data.
+
+Google Chrome Lighthouse is used to check the website performance and accessibility.
+
+Figma is used to create the wireframe sketches for the website structure.
+
 ## 🚀 Guide to Running the Project Locally
 
 Follow these steps to run the project on your local machine:
