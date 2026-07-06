@@ -24,6 +24,38 @@ Using figma to create the wireframe for the formation of the design for the webs
 
 ## Existing Features
 
+Navbar contain menu option from Home, Product, Cart, and Login option.
+
+![Navbar](screenshots/navbar.png)
+
+Hero image showing the website all about, with button to redirect into the product page.
+
+![Hero Image](screenshots/hero-image.png)
+
+Feature Catagories shows show the type of product that is for sell, this consist of Headset, Keyboard, Monitor, and Mouse.
+
+![Catagories Product](screenshots/catagories.png)
+
+Feature Product will show the products that are available
+
+![Feature Product](screenshots/product.png)
+
+Product page shows all the product that is being sell in the website.
+
+![All Product](screenshots/all-product.png)
+
+ Cart page shows the product that is inserted into the cart and ready to press to buy.
+
+ ![Cart](screenshots/cart.png)
+
+ Login page is for the user that has an account and accessable before adding product into the cart.
+
+ ![Login](screenshots/login.png)
+
+ If the user does not have an account, users can access the registered.
+
+ ![Account Creation](screenshots/account-creation.png)
+
 ## 🚀 Guide to Running the Project Locally
 
 Follow these steps to run the project on your local machine:
