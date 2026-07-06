@@ -4,7 +4,7 @@ A Django-based E-Commerce system with PostgreSQL database integration and Supaba
 
 Here is the result of the mock-up test.
 
-![Mock-test](screenshots/mock-up-test.png)
+![Mock test](screenshots/mock-up-test.png)
 
 Here is the functional link.
 
