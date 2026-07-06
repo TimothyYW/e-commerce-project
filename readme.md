@@ -70,7 +70,7 @@ Product page shows all the product that is being sell in the website.
 
 The Lighthouse devtool measures the website's level of performance, accessibility, best practices, and SEO. The scores can be seen below:
 
-![Lighthouse Devtool](screenshots/lighthouse-devtool.png)
+![Lighthouse Devtool](screenshots/lighthouse-test.png)
 
 # Technologies Utilized 
 
